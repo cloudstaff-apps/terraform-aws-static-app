@@ -111,7 +111,7 @@ resource "aws_cloudfront_distribution" "default" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "s3Origin"
     compress         = true
-    response_headers_policy_id = var.enabled_security_headers_policy ? aws_cloudfront_response_headers_policy.security_headers_policy.id : ""
+    response_headers_policy_id = var.enabled_security_headers_policy ? aws_cloudfront_response_headers_policy.security_headers_policy[0].id : ""
     forwarded_values {
       query_string = var.default_cache_behavior_forward_query_string
       headers      = var.default_cache_behavior_forward_headers
