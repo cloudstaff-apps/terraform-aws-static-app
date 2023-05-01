@@ -102,6 +102,11 @@ variable "module_enabled" {
   default     = true
 }
 
+variable "enabled_security_headers_policy" {
+  description = "Enable security header"
+  default     = true
+}
+
 variable "default_cache_behavior_forward_query_string" {
   default     = true
   description = "Default cache behavior forward"
