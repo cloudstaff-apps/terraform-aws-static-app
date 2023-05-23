@@ -10,7 +10,7 @@ resource "aws_cloudfront_distribution" "default" {
   is_ipv6_enabled     = true
   comment             = var.name
   aliases             = var.hostnames
-  price_class         = "PriceClass_All"
+  price_class         = var.default_price_class
   default_root_object = var.default_root_object
   wait_for_deployment = var.wait_for_deployment
 
@@ -79,6 +79,9 @@ resource "aws_cloudfront_distribution" "default" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "s3Origin"
     compress         = true
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.this.id
+    cache_policy_id = data.aws_cloudfront_cache_policy.this.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.this.id
 
     forwarded_values {
       query_string = var.default_cache_behavior_forward_query_string
@@ -101,7 +104,7 @@ resource "aws_cloudfront_distribution" "default" {
       }
     }
 
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = var.default_viewer_protocol_policy
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400

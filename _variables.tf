@@ -122,6 +122,31 @@ variable "default_cache_behavior_allowed_methods" {
   description = "Methods allowed for default origin cache behavior"
 }
 
+variable "default_response_headers_policy" {
+  default     = "Managed-CORS-with-preflight-and-SecurityHeadersPolicy"
+  description = "The name of a response headers policy"
+}
+
+variable "default_cache_policy" {
+  default     = "Managed-CachingOptimized"
+  description = "The name of a cache policy"
+}
+
+variable "default_origin_request_policy" {
+  default     = "Managed-CORS-S3Origin"
+  description = "The name of a Origin request policy"
+}
+
+variable "default_price_class" {
+  default     = "PriceClass_All"
+  description = "The name of default PriceClass"
+}
+
+variable "default_viewer_protocol_policy" {
+  default     = "redirect-to-https"
+  description = "The name of default protocal policy"
+}
+
 variable "wait_for_deployment" {
   default     = false
   description = "If enabled, the resource will wait for the distribution status to change from InProgress to Deployed"
