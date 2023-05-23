@@ -83,14 +83,6 @@ resource "aws_cloudfront_distribution" "default" {
     cache_policy_id = data.aws_cloudfront_cache_policy.this.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.this.id
 
-    forwarded_values {
-      query_string = var.default_cache_behavior_forward_query_string
-      headers      = var.default_cache_behavior_forward_headers
-      cookies {
-        forward = var.default_cache_behavior_cookies_forward
-      }
-    }
-
     dynamic "lambda_function_association" {
       for_each = [for i in var.lambda_edge : {
         origin_request = i.origin_request
