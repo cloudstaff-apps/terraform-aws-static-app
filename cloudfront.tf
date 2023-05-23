@@ -97,9 +97,6 @@ resource "aws_cloudfront_distribution" "default" {
     }
 
     viewer_protocol_policy = var.default_viewer_protocol_policy
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
   }
 
   dynamic "ordered_cache_behavior" {
