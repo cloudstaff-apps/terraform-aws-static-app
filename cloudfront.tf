@@ -114,18 +114,6 @@ resource "aws_cloudfront_distribution" "default" {
       compress         = lookup(cache_behavior.value, "compress", null)
       cache_policy_id  = lookup(cache_behavior.value, "cache_policy_id", null)
 
-      dynamic "forwarded_values" {
-        iterator = fwd
-        for_each = lookup(cache_behavior.value, "use_forwarded_values", [])
-        content {
-          query_string = lookup(fwd.value, "query_string", null)
-          headers      = lookup(fwd.value, "headers", null)
-          cookies {
-            forward = lookup(fwd.value, "cookies_forward", null)
-          }
-        }
-      }
-
       dynamic "lambda_function_association" {
         iterator = lambda
         for_each = lookup(cache_behavior.value, "lambda_function_association", [])
