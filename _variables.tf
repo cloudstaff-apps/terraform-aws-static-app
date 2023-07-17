@@ -20,7 +20,7 @@ variable "hostname_alias" {
   default     = false
 }
 
-variable "hostname_alias" {
+variable "is_ipv6_enabled" {
   description = "enable ipv6 support"
   default     = true
 }
