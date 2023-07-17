@@ -7,7 +7,7 @@ resource "aws_cloudfront_distribution" "default" {
   count = var.module_enabled ? 1 : 0
 
   enabled             = true
-  is_ipv6_enabled     = true
+  is_ipv6_enabled     = var.is_ipv6_enabled
   comment             = var.name
   aliases             = var.hostnames
   price_class         = var.default_price_class

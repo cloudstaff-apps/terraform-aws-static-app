@@ -20,6 +20,11 @@ variable "hostname_alias" {
   default     = false
 }
 
+variable "hostname_alias" {
+  description = "enable ipv6 support"
+  default     = true
+}
+
 variable "cloudfront_forward_headers" {
   default     = ["*"]
   description = "Headers to forward to origin from CloudFront"
