@@ -111,6 +111,11 @@ resource "aws_cloudfront_distribution" "default" {
       compress         = lookup(cache_behavior.value, "compress", null)
       cache_policy_id  = lookup(cache_behavior.value, "cache_policy_id", null)
 
+      origin_request_policy_id = lookup(
+            cache_behavior.value,
+            "origin_request_policy_id",
+            data.aws_cloudfront_origin_request_policy.this.id
+          )
       dynamic "lambda_function_association" {
         iterator = lambda
         for_each = lookup(cache_behavior.value, "lambda_function_association", [])
