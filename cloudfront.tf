@@ -114,12 +114,13 @@ resource "aws_cloudfront_distribution" "default" {
     iterator = cache_behavior
 
     content {
-      path_pattern     = cache_behavior.value.path_pattern
-      allowed_methods  = cache_behavior.value.allowed_methods
-      cached_methods   = cache_behavior.value.cached_methods
-      target_origin_id = cache_behavior.value.target_origin_id
-      compress         = lookup(cache_behavior.value, "compress", null)
-      cache_policy_id  = lookup(cache_behavior.value, "cache_policy_id", null)
+      path_pattern               = cache_behavior.value.path_pattern
+      allowed_methods            = cache_behavior.value.allowed_methods
+      cached_methods             = cache_behavior.value.cached_methods
+      target_origin_id           = cache_behavior.value.target_origin_id
+      compress                   = lookup(cache_behavior.value, "compress", null)
+      cache_policy_id            = lookup(cache_behavior.value, "cache_policy_id", null)
+      response_headers_policy_id = cache_behavior.value.response_headers_policy_id
 
       dynamic "forwarded_values" {
         iterator = fwd
