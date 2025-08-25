@@ -96,8 +96,29 @@ variable "dynamic_custom_origin_config" {
 
 variable "dynamic_ordered_cache_behavior" {
   description = "Ordered Cache Behaviors to be used in dynamic block"
-  type        = any
-  default     = []
+  type = list(object({
+    path_pattern           = string
+    allowed_methods        = list(string)
+    cached_methods         = list(string)
+    target_origin_id       = string
+    compress               = optional(bool)
+    cache_policy_id        = optional(string)
+    viewer_protocol_policy = string
+    min_ttl                = optional(number)
+    default_ttl            = optional(number)
+    max_ttl                = optional(number)
+    use_forwarded_values = optional(list(object({
+      query_string    = optional(bool)
+      headers         = optional(list(string))
+      cookies_forward = optional(string)
+    })), [])
+    lambda_function_association = optional(list(object({
+      event_type   = string
+      lambda_arn   = string
+      include_body = optional(bool)
+    })), [])
+  }))
+  default = []
 }
 
 variable "module_enabled" {
@@ -207,7 +228,7 @@ variable "trusted_key_groups" {
 
 variable "response_header_policies" {
   description = "Response headers policies to add to the cloudfront"
-  default     = null
+  default     = []
   type = list(object({
     name    = string
     comment = optional(string, "")
