@@ -1,4 +1,7 @@
-variable "name" {}
+variable "name" {
+  type        = string
+  description = "Name of static app"
+}
 
 variable "s3_bucket_id" {}
 
@@ -57,9 +60,8 @@ variable "minimum_protocol_version" {
     in ssl_support_method, only SSLv3 or TLSv1 can be specified. If you have specified 
     cloudfront_default_certificate, TLSv1 must be specified.
     EOF
-
-  type    = string
-  default = "TLSv1.2_2019"
+  type        = string
+  default     = "TLSv1.2_2019"
 }
 
 variable "restriction_type" {
@@ -76,6 +78,7 @@ variable "restriction_location" {
 
 variable "cloudfront_web_acl_id" {
   default     = ""
+  type        = string
   description = "Optional web acl (WAF) to attach to CloudFront"
 }
 
@@ -109,21 +112,25 @@ variable "default_cache_behavior_forward_query_string" {
 
 variable "default_cache_behavior_forward_headers" {
   default     = ["Access-Control-Request-Headers", "Access-Control-Request-Method", "Origin"]
+  type        = list(string)
   description = "Default cache behavior headers forward"
 }
 
 variable "default_cache_behavior_cookies_forward" {
   default     = "all"
+  type        = string
   description = "Default cache behavior cookies forward"
 }
 
 variable "default_cache_behavior_allowed_methods" {
   default     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+  type        = list(string)
   description = "Methods allowed for default origin cache behavior"
 }
 
 variable "default_cache_behavior_response_headers_id" {
   default     = ""
+  type        = string
   description = "The identifier for a response headers policy"
 }
 
@@ -134,6 +141,7 @@ variable "wait_for_deployment" {
 
 variable "response_page_path" {
   default     = "/index.html"
+  type        = string
   description = "Custom error response page path"
 }
 
@@ -145,27 +153,33 @@ variable "lambda_edge" {
 variable "default_threshold" {
   description = "The default threshold for the metric."
   default     = 5
+  type        = number
 }
 
 variable "default_evaluation_periods" {
   description = "The default amount of evaluation periods."
   default     = 2
+  type        = number
 }
 
 variable "default_period" {
   description = "The default evaluation period."
   default     = 60
+  type        = number
 }
 
 variable "default_comparison_operator" {
   description = "The default comparison operator."
   default     = "GreaterThanOrEqualToThreshold"
+  type        = string
 }
 
 variable "default_statistic" {
   description = "The default statistic."
+  type        = string
   default     = "Average"
 }
+
 variable "alarms" {
   type        = map(any)
   default     = {}
@@ -189,4 +203,33 @@ variable "trusted_key_groups" {
   }))
   default     = []
   description = "A list with `name` and `public_key` to create and attach a trusted key group to the distribution"
+}
+
+variable "response_header_policies" {
+  type = list(object({
+    name    = string
+    comment = optional(string, "")
+    cors_config = optional(object({
+      access_control_allow_credentials = bool
+      access_control_allow_headers     = list(string)
+      access_control_allow_methods     = list(string)
+      access_control_allow_origins     = list(string)
+      access_control_expose_headers    = list(string)
+      access_control_max_age_sec       = number
+      origin_override                  = bool
+    }), null)
+    custom_headers_config = optional(list(object({
+      header   = string
+      override = bool
+      value    = string
+    })), null)
+    remove_headers_config = optional(list(object({
+      header = string
+    })), null)
+    server_timing_headers_config = optional(object({
+      enabled       = bool
+      sampling_rate = number
+    }), null)
+  }))
+
 }
