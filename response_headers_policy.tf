@@ -1,5 +1,5 @@
 resource "aws_cloudfront_response_headers_policy" "default" {
-  for_each = { for policy in var.response_header_policies : policy.name => policy }
+  for_each = { for policy in try(var.response_header_policies, []) : policy.name => policy }
   name     = each.key
   comment  = each.value.comment
 
