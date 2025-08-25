@@ -206,6 +206,8 @@ variable "trusted_key_groups" {
 }
 
 variable "response_header_policies" {
+  description = "Response headers policies to add to the cloudfront"
+  default     = null
   type = list(object({
     name    = string
     comment = optional(string, "")
@@ -231,5 +233,4 @@ variable "response_header_policies" {
       sampling_rate = number
     }), null)
   }))
-
 }
