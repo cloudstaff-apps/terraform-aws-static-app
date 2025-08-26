@@ -246,33 +246,3 @@ variable "trusted_key_groups" {
   default     = []
   description = "A list with `name` and `public_key` to create and attach a trusted key group to the distribution"
 }
-
-variable "response_header_policies" {
-  description = "Response headers policies to add to the cloudfront"
-  default     = []
-  type = list(object({
-    name    = string
-    comment = optional(string, "")
-    cors_config = optional(object({
-      access_control_allow_credentials = bool
-      access_control_allow_headers     = list(string)
-      access_control_allow_methods     = list(string)
-      access_control_allow_origins     = list(string)
-      access_control_expose_headers    = list(string)
-      access_control_max_age_sec       = number
-      origin_override                  = bool
-    }), null)
-    custom_headers_config = optional(list(object({
-      header   = string
-      override = bool
-      value    = string
-    })), null)
-    remove_headers_config = optional(list(object({
-      header = string
-    })), null)
-    server_timing_headers_config = optional(object({
-      enabled       = bool
-      sampling_rate = number
-    }), null)
-  }))
-}
