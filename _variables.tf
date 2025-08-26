@@ -1,28 +1,38 @@
-variable "name" {}
-
-variable "s3_bucket_id" {}
-
-variable "hostnames" {
-  type = list(string)
+variable "name" {
+  type        = string
+  description = "Name of static app"
 }
 
-variable "hosted_zone" {}
+variable "s3_bucket_id" {
+  type        = string
+  description = "S3 Bucket ID to serve the static app from"
+}
 
-variable "certificate_arn" {}
+variable "hostnames" {
+  type        = list(string)
+  description = "List of hostnames to associate with the CloudFront distribution"
+}
+
+variable "hosted_zone" {
+  type        = string
+  description = "Hosted zone ID to create the record in"
+}
+
+variable "certificate_arn" {
+  type        = string
+  description = "Certificate ARN in us-east-1 for CloudFront"
+}
 
 variable "hostname_create" {
   description = "Create hostname in the hosted zone passed?"
+  type        = bool
   default     = true
 }
 
 variable "hostname_alias" {
   description = "Create an Alias host in route53 for Cloudfront (instead of CNAME)?"
+  type        = bool
   default     = false
-}
-
-variable "cloudfront_forward_headers" {
-  default     = ["*"]
-  description = "Headers to forward to origin from CloudFront"
 }
 
 variable "cloudfront_logging_bucket" {
@@ -37,16 +47,6 @@ variable "cloudfront_logging_prefix" {
   description = "Logging prefix"
 }
 
-variable "cloudfront_origin_keepalive_timeout" {
-  default     = 5
-  description = "The amount of time, in seconds, that CloudFront maintains an idle connection with a custom origin server before closing the connection. Valid values are from 1 to 60 seconds."
-}
-
-variable "cloudfront_origin_read_timeout" {
-  default     = 30
-  description = "The amount of time, in seconds, that CloudFront waits for a response from a custom origin. The value applies both to the time that CloudFront waits for an initial response and the time that CloudFront waits for each subsequent packet. Valid values are from 4 to 60 seconds."
-}
-
 variable "minimum_protocol_version" {
   description = <<EOF
     The minimum version of the SSL protocol that you want CloudFront to use for HTTPS connections. 
@@ -57,9 +57,8 @@ variable "minimum_protocol_version" {
     in ssl_support_method, only SSLv3 or TLSv1 can be specified. If you have specified 
     cloudfront_default_certificate, TLSv1 must be specified.
     EOF
-
-  type    = string
-  default = "TLSv1.2_2019"
+  type        = string
+  default     = "TLSv1.2_2019"
 }
 
 variable "restriction_type" {
@@ -76,6 +75,7 @@ variable "restriction_location" {
 
 variable "cloudfront_web_acl_id" {
   default     = ""
+  type        = string
   description = "Optional web acl (WAF) to attach to CloudFront"
 }
 
@@ -93,79 +93,119 @@ variable "dynamic_custom_origin_config" {
 
 variable "dynamic_ordered_cache_behavior" {
   description = "Ordered Cache Behaviors to be used in dynamic block"
-  type        = any
-  default     = []
+  type = list(object({
+    path_pattern                 = optional(string)
+    allowed_methods              = optional(list(string))
+    cached_methods               = optional(list(string))
+    viewer_protocol_policy       = optional(string)
+    target_origin_id             = optional(string)
+    smooth_streaming             = optional(bool, false)
+    compress                     = optional(bool, true)
+    cache_policy_id              = optional(string)
+    response_headers_policy_id   = optional(string)
+    response_headers_policy_name = optional(string)
+    min_ttl                      = optional(number)
+    default_ttl                  = optional(number)
+    max_ttl                      = optional(number)
+    forwarded_values = optional(list(object({
+      query_string              = optional(bool)
+      headers                   = optional(list(string))
+      cookies_forward           = optional(string)
+      cookies_whitelisted_names = optional(list(string))
+    })), [])
+    lambda_function_association = optional(list(object({
+      event_type   = string
+      lambda_arn   = string
+      include_body = optional(bool)
+    })), [])
+  }))
+  default = null
 }
 
 variable "module_enabled" {
   description = "Enable the module to create resources"
   default     = true
+  type        = bool
 }
 
 variable "default_cache_behavior_forward_query_string" {
   default     = true
+  type        = bool
   description = "Default cache behavior forward"
 }
 
 variable "default_cache_behavior_forward_headers" {
   default     = ["Access-Control-Request-Headers", "Access-Control-Request-Method", "Origin"]
+  type        = list(string)
   description = "Default cache behavior headers forward"
 }
 
 variable "default_cache_behavior_cookies_forward" {
   default     = "all"
+  type        = string
   description = "Default cache behavior cookies forward"
 }
 
 variable "default_cache_behavior_allowed_methods" {
   default     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+  type        = list(string)
   description = "Methods allowed for default origin cache behavior"
 }
 
 variable "default_cache_behavior_response_headers_id" {
   default     = ""
+  type        = string
   description = "The identifier for a response headers policy"
 }
 
 variable "wait_for_deployment" {
   default     = false
+  type        = bool
   description = "If enabled, the resource will wait for the distribution status to change from InProgress to Deployed"
 }
 
 variable "response_page_path" {
   default     = "/index.html"
+  type        = string
   description = "Custom error response page path"
 }
 
 variable "lambda_edge" {
   default     = []
+  type        = any
   description = "Lambda EDGE configuration"
 }
 
 variable "default_threshold" {
   description = "The default threshold for the metric."
   default     = 5
+  type        = number
 }
 
 variable "default_evaluation_periods" {
   description = "The default amount of evaluation periods."
   default     = 2
+  type        = number
 }
 
 variable "default_period" {
   description = "The default evaluation period."
   default     = 60
+  type        = number
 }
 
 variable "default_comparison_operator" {
   description = "The default comparison operator."
   default     = "GreaterThanOrEqualToThreshold"
+  type        = string
 }
 
 variable "default_statistic" {
   description = "The default statistic."
+  type        = string
   default     = "Average"
 }
+
 variable "alarms" {
   type        = map(any)
   default     = {}
