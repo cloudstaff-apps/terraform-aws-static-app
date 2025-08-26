@@ -174,5 +174,4 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   web_acl_id = var.cloudfront_web_acl_id != "" ? var.cloudfront_web_acl_id : ""
-  depends_on = [aws_cloudfront_response_headers_policy.default]
 }
