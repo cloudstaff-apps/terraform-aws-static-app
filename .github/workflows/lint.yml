@@ -29,6 +29,16 @@ jobs:
       - name: Run TFLint
         run: tflint -f compact
 
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    container:
+      image: hashicorp/terraform:1.9.0
+    steps:
+      - uses: actions/checkout@master
+      - run: terraform init
+      - run: terraform test
+
   fmt:
     name: Code Format
     runs-on: ubuntu-latest
