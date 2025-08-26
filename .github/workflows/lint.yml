@@ -43,7 +43,7 @@ jobs:
     name: Code Format
     runs-on: ubuntu-latest
     container:
-      image: hashicorp/terraform:latest
+      image: hashicorp/terraform:1.9.0
     steps:
       - uses: actions/checkout@master
       - run: terraform fmt --recursive -check=true
