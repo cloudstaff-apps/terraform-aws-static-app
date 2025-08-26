@@ -24,7 +24,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   dynamic "origin" {
-    for_each = [for i in var.dynamic_custom_origin_config : {
+    for_each = [for i in coalesce(var.dynamic_custom_origin_config, []) : {
       domain_name              = i.domain_name
       origin_id                = i.origin_id != "" ? i.origin_id : "default"
       path                     = lookup(i, "origin_path", null)
@@ -110,26 +110,29 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   dynamic "ordered_cache_behavior" {
-    for_each = var.dynamic_ordered_cache_behavior
+    for_each = coalesce(var.dynamic_ordered_cache_behavior, [])
     iterator = cache_behavior
 
     content {
-      path_pattern               = cache_behavior.value.path_pattern
-      allowed_methods            = cache_behavior.value.allowed_methods
-      cached_methods             = cache_behavior.value.cached_methods
-      target_origin_id           = cache_behavior.value.target_origin_id
-      compress                   = lookup(cache_behavior.value, "compress", null)
-      cache_policy_id            = lookup(cache_behavior.value, "cache_policy_id", null)
-      response_headers_policy_id = cache_behavior.value.response_headers_policy_id
+      path_pattern     = cache_behavior.value.path_pattern
+      allowed_methods  = cache_behavior.value.allowed_methods
+      cached_methods   = cache_behavior.value.cached_methods
+      target_origin_id = cache_behavior.value.target_origin_id
+      compress         = lookup(cache_behavior.value, "compress", null)
+      cache_policy_id  = lookup(cache_behavior.value, "cache_policy_id", null)
+      response_headers_policy_id = lookup(cache_behavior.value, "response_headers_policy_id", null) != null ? lookup(cache_behavior.value, "response_headers_policy_id", null) : (
+        lookup(cache_behavior.value, "response_headers_policy_name", null) != null ? data.aws_cloudfront_response_headers_policy.default[cache_behavior.value.response_headers_policy_name].id : null
+      )
 
       dynamic "forwarded_values" {
         iterator = fwd
-        for_each = lookup(cache_behavior.value, "use_forwarded_values", [])
+        for_each = lookup(cache_behavior.value, "forwarded_values", [])
         content {
           query_string = lookup(fwd.value, "query_string", null)
           headers      = lookup(fwd.value, "headers", null)
           cookies {
-            forward = lookup(fwd.value, "cookies_forward", null)
+            forward           = lookup(fwd.value, "cookies_forward", null)
+            whitelisted_names = lookup(fwd.value, "cookies_whitelisted_names", null)
           }
         }
       }
@@ -171,4 +174,5 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   web_acl_id = var.cloudfront_web_acl_id != "" ? var.cloudfront_web_acl_id : ""
+  depends_on = [aws_cloudfront_response_headers_policy.default]
 }

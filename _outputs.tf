@@ -14,9 +14,17 @@ output "cloudfront_key_group_id" {
     for k, keygroup in aws_cloudfront_key_group.default : k => keygroup.id
   }
 }
+
 output "cloudfront_public_key_id" {
   description = "CloudFront Key Group ID"
   value = {
     for k, publickey in aws_cloudfront_public_key.default : k => publickey.id
+  }
+}
+
+output "response_headers_policies_ids" {
+  description = "Response headers policies for Cloudfront"
+  value = {
+    for k, policy in data.aws_cloudfront_response_headers_policy.default : k => policy.id
   }
 }

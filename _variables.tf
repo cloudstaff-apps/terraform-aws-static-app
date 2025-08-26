@@ -97,22 +97,24 @@ variable "dynamic_custom_origin_config" {
 variable "dynamic_ordered_cache_behavior" {
   description = "Ordered Cache Behaviors to be used in dynamic block"
   type = list(object({
-    path_pattern               = string
-    allowed_methods            = list(string)
-    cached_methods             = list(string)
-    smooth_streaming           = optional(bool, false)
-    target_origin_id           = string
-    compress                   = optional(bool, true)
-    cache_policy_id            = optional(string)
-    viewer_protocol_policy     = string
-    response_headers_policy_id = optional(string)
-    min_ttl                    = optional(number)
-    default_ttl                = optional(number)
-    max_ttl                    = optional(number)
-    use_forwarded_values = optional(list(object({
-      query_string    = optional(bool)
-      headers         = optional(list(string))
-      cookies_forward = optional(string)
+    path_pattern                 = optional(string)
+    allowed_methods              = optional(list(string))
+    cached_methods               = optional(list(string))
+    viewer_protocol_policy       = optional(string)
+    target_origin_id             = optional(string)
+    smooth_streaming             = optional(bool, false)
+    compress                     = optional(bool, true)
+    cache_policy_id              = optional(string)
+    response_headers_policy_id   = optional(string)
+    response_headers_policy_name = optional(string)
+    min_ttl                      = optional(number)
+    default_ttl                  = optional(number)
+    max_ttl                      = optional(number)
+    forwarded_values = optional(list(object({
+      query_string              = optional(bool)
+      headers                   = optional(list(string))
+      cookies_forward           = optional(string)
+      cookies_whitelisted_names = optional(list(string))
     })), [])
     lambda_function_association = optional(list(object({
       event_type   = string
@@ -120,7 +122,27 @@ variable "dynamic_ordered_cache_behavior" {
       include_body = optional(bool)
     })), [])
   }))
-  default = []
+  default = null
+  # validation {
+  #   condition = length([
+  #     for cb in try(var.dynamic_ordered_cache_behavior, []) : cb.path_pattern
+  #     ]) == length(distinct([
+  #       for cb in try(var.dynamic_ordered_cache_behavior, []) : cb.path_pattern
+  #   ]))
+  #   error_message = "You have duplicate path_pattern in dynamic_ordered_cache_behavior"
+  # }
+  # validation {
+  #   condition = alltrue([
+  #     for cb in try(var.dynamic_ordered_cache_behavior, []) : (
+  #       (cb.response_headers_policy_id != null && cb.response_headers_policy_id != "") ||
+  #       (cb.response_headers_policy_name != null && cb.response_headers_policy_name != "")
+  #       ) || (
+  #       (cb.response_headers_policy_id == null || cb.response_headers_policy_id == "") &&
+  #       (cb.response_headers_policy_name == null || cb.response_headers_policy_name == "")
+  #     )
+  #   ])
+  #   error_message = "You must provide either response_headers_policy_id or response_headers_policy_name in dynamic_ordered_cache_behavior"
+  # }
 }
 
 variable "module_enabled" {
