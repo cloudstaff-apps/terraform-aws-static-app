@@ -7,11 +7,11 @@ mock_provider "aws" {
 run "valid_required_vars" {
   command = plan
   variables {
-    name                     = "test-static-app"
-    s3_bucket_id             = "test-bucket"
-    hostnames                = ["example.com"]
-    hosted_zone              = "Z123456789"
-    certificate_arn          = "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012"
+    name            = "test-static-app"
+    s3_bucket_id    = "test-bucket"
+    hostnames       = ["example.com"]
+    hosted_zone     = "Z123456789"
+    certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012"
   }
 }
 
