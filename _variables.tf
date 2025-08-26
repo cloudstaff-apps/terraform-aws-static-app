@@ -3,29 +3,32 @@ variable "name" {
   description = "Name of static app"
 }
 
-variable "s3_bucket_id" {}
+variable "s3_bucket_id" {
+  type = string
+}
 
 variable "hostnames" {
   type = list(string)
 }
 
-variable "hosted_zone" {}
+variable "hosted_zone" {
+  type = string
+}
 
-variable "certificate_arn" {}
+variable "certificate_arn" {
+  type = string
+}
 
 variable "hostname_create" {
   description = "Create hostname in the hosted zone passed?"
+  type        = bool
   default     = true
 }
 
 variable "hostname_alias" {
   description = "Create an Alias host in route53 for Cloudfront (instead of CNAME)?"
+  type        = bool
   default     = false
-}
-
-variable "cloudfront_forward_headers" {
-  default     = ["*"]
-  description = "Headers to forward to origin from CloudFront"
 }
 
 variable "cloudfront_logging_bucket" {
@@ -38,16 +41,6 @@ variable "cloudfront_logging_prefix" {
   type        = string
   default     = ""
   description = "Logging prefix"
-}
-
-variable "cloudfront_origin_keepalive_timeout" {
-  default     = 5
-  description = "The amount of time, in seconds, that CloudFront maintains an idle connection with a custom origin server before closing the connection. Valid values are from 1 to 60 seconds."
-}
-
-variable "cloudfront_origin_read_timeout" {
-  default     = 30
-  description = "The amount of time, in seconds, that CloudFront waits for a response from a custom origin. The value applies both to the time that CloudFront waits for an initial response and the time that CloudFront waits for each subsequent packet. Valid values are from 4 to 60 seconds."
 }
 
 variable "minimum_protocol_version" {
@@ -148,10 +141,12 @@ variable "dynamic_ordered_cache_behavior" {
 variable "module_enabled" {
   description = "Enable the module to create resources"
   default     = true
+  type        = bool
 }
 
 variable "default_cache_behavior_forward_query_string" {
   default     = true
+  type        = bool
   description = "Default cache behavior forward"
 }
 
@@ -181,6 +176,7 @@ variable "default_cache_behavior_response_headers_id" {
 
 variable "wait_for_deployment" {
   default     = false
+  type        = bool
   description = "If enabled, the resource will wait for the distribution status to change from InProgress to Deployed"
 }
 
@@ -192,6 +188,7 @@ variable "response_page_path" {
 
 variable "lambda_edge" {
   default     = []
+  type        = any
   description = "Lambda EDGE configuration"
 }
 
