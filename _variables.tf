@@ -4,19 +4,23 @@ variable "name" {
 }
 
 variable "s3_bucket_id" {
-  type = string
+  type        = string
+  description = "S3 Bucket ID to serve the static app from"
 }
 
 variable "hostnames" {
-  type = list(string)
+  type        = list(string)
+  description = "List of hostnames to associate with the CloudFront distribution"
 }
 
 variable "hosted_zone" {
-  type = string
+  type        = string
+  description = "Hosted zone ID to create the record in"
 }
 
 variable "certificate_arn" {
-  type = string
+  type        = string
+  description = "Certificate ARN in us-east-1 for CloudFront"
 }
 
 variable "hostname_create" {
@@ -116,26 +120,6 @@ variable "dynamic_ordered_cache_behavior" {
     })), [])
   }))
   default = null
-  # validation {
-  #   condition = length([
-  #     for cb in try(var.dynamic_ordered_cache_behavior, []) : cb.path_pattern
-  #     ]) == length(distinct([
-  #       for cb in try(var.dynamic_ordered_cache_behavior, []) : cb.path_pattern
-  #   ]))
-  #   error_message = "You have duplicate path_pattern in dynamic_ordered_cache_behavior"
-  # }
-  # validation {
-  #   condition = alltrue([
-  #     for cb in try(var.dynamic_ordered_cache_behavior, []) : (
-  #       (cb.response_headers_policy_id != null && cb.response_headers_policy_id != "") ||
-  #       (cb.response_headers_policy_name != null && cb.response_headers_policy_name != "")
-  #       ) || (
-  #       (cb.response_headers_policy_id == null || cb.response_headers_policy_id == "") &&
-  #       (cb.response_headers_policy_name == null || cb.response_headers_policy_name == "")
-  #     )
-  #   ])
-  #   error_message = "You must provide either response_headers_policy_id or response_headers_policy_name in dynamic_ordered_cache_behavior"
-  # }
 }
 
 variable "module_enabled" {
