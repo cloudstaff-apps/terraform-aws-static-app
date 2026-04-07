@@ -142,6 +142,11 @@ variable "lambda_edge" {
   description = "Lambda EDGE configuration"
 }
 
+variable "cloudfront_function" {
+  default     = []
+  description = "CloudFront Function configuration"
+}
+
 variable "default_threshold" {
   description = "The default threshold for the metric."
   default     = 5
