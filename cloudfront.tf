@@ -102,17 +102,6 @@ resource "aws_cloudfront_distribution" "default" {
       }
     }
 
-    dynamic "function_association" {
-      for_each = [for i in var.cloudfront_function : {
-        event_type   = i.event_type
-        function_arn = i.function_arn
-      }]
-      content {
-        event_type   = function_association.value.event_type
-        function_arn = function_association.value.function_arn
-      }
-    }
-
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
@@ -150,15 +139,6 @@ resource "aws_cloudfront_distribution" "default" {
           event_type   = lambda.value.event_type
           lambda_arn   = lambda.value.lambda_arn
           include_body = lookup(lambda.value, "include_body", null)
-        }
-      }
-
-      dynamic "function_association" {
-        iterator = func
-        for_each = lookup(cache_behavior.value, "function_association", [])
-        content {
-          event_type   = func.value.event_type
-          function_arn = func.value.function_arn
         }
       }
 
