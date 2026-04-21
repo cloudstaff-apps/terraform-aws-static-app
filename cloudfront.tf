@@ -24,7 +24,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   dynamic "origin" {
-    for_each = [for i in var.dynamic_custom_origin_config : {
+    for_each = [for i in coalesce(var.dynamic_custom_origin_config, []) : {
       domain_name              = i.domain_name
       origin_id                = i.origin_id != "" ? i.origin_id : "default"
       path                     = lookup(i, "origin_path", null)
@@ -80,6 +80,7 @@ resource "aws_cloudfront_distribution" "default" {
     target_origin_id           = "s3Origin"
     compress                   = true
     response_headers_policy_id = var.default_cache_behavior_response_headers_id
+    trusted_key_groups         = length(var.trusted_key_groups) > 0 ? [for i in aws_cloudfront_key_group.default : i.id] : []
 
     forwarded_values {
       query_string = var.default_cache_behavior_forward_query_string
@@ -102,6 +103,14 @@ resource "aws_cloudfront_distribution" "default" {
       }
     }
 
+    dynamic "function_association" {
+      for_each = local.resolved_cloudfront_function_arn == null ? [] : [1]
+      content {
+        event_type   = var.cloudfront_function_event_type
+        function_arn = local.resolved_cloudfront_function_arn
+      }
+    }
+
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
@@ -109,7 +118,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   dynamic "ordered_cache_behavior" {
-    for_each = var.dynamic_ordered_cache_behavior
+    for_each = coalesce(var.dynamic_ordered_cache_behavior, [])
     iterator = cache_behavior
 
     content {
@@ -119,15 +128,19 @@ resource "aws_cloudfront_distribution" "default" {
       target_origin_id = cache_behavior.value.target_origin_id
       compress         = lookup(cache_behavior.value, "compress", null)
       cache_policy_id  = lookup(cache_behavior.value, "cache_policy_id", null)
+      response_headers_policy_id = lookup(cache_behavior.value, "response_headers_policy_id", null) != null ? lookup(cache_behavior.value, "response_headers_policy_id", null) : (
+        lookup(cache_behavior.value, "response_headers_policy_name", null) != null ? data.aws_cloudfront_response_headers_policy.default[cache_behavior.value.response_headers_policy_name].id : null
+      )
 
       dynamic "forwarded_values" {
         iterator = fwd
-        for_each = lookup(cache_behavior.value, "use_forwarded_values", [])
+        for_each = lookup(cache_behavior.value, "forwarded_values", [])
         content {
           query_string = lookup(fwd.value, "query_string", null)
           headers      = lookup(fwd.value, "headers", null)
           cookies {
-            forward = lookup(fwd.value, "cookies_forward", null)
+            forward           = lookup(fwd.value, "cookies_forward", null)
+            whitelisted_names = lookup(fwd.value, "cookies_whitelisted_names", null)
           }
         }
       }
@@ -169,4 +182,13 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   web_acl_id = var.cloudfront_web_acl_id != "" ? var.cloudfront_web_acl_id : ""
+}
+
+resource "aws_cloudfront_function" "this" {
+  count   = var.create_cloudfront_function ? 1 : 0
+  name    = var.cloudfront_function_name
+  runtime = "cloudfront-js-2.0"
+  comment = "Managed by terraform"
+  publish = true
+  code    = var.cloudfront_function_code
 }
