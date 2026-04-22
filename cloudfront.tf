@@ -126,6 +126,15 @@ resource "aws_cloudfront_distribution" "default" {
         }
       }
 
+      dynamic "function_association" {
+        iterator = fn
+        for_each = lookup(cache_behavior.value, "function_association", [])
+        content {
+          event_type   = fn.value.event_type
+          function_arn = fn.value.function_arn
+        }
+     }
+
       viewer_protocol_policy = cache_behavior.value.viewer_protocol_policy
       min_ttl                = lookup(cache_behavior.value, "min_ttl", null)
       default_ttl            = lookup(cache_behavior.value, "default_ttl", null)
